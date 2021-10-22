@@ -24,7 +24,7 @@ int isKeyword(char buffer[]){
 }
  
 int main(){
-    char ch, buffer[15], operators[] = "+-><*/%=()";
+    char ch, buffer[15], operators[] = "+-><*/%=()#";
     ifstream fin("program.txt");
     int i,j=0;
     if(!fin.is_open()){
@@ -34,9 +34,17 @@ int main(){
     while(!fin.eof()){
         ch = fin.get();
         
-        for(i = 0; i < 10; ++i){
-            if(ch == operators[i])
-            cout << ch << '\n';
+        for(i = 0; i < 11; ++i){
+            if(ch == operators[i]) {
+                if(j != 0) {
+                    // to make it a string, add null at the end
+                    buffer[j] = '\0';
+                    cout << buffer << '\n';
+                    j = 0;
+                }
+                cout << ch << '\n';
+                break;
+            }
         }
         
         if(isalnum(ch)){
