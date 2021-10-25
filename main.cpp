@@ -5,9 +5,10 @@
 #include<ctype.h>
 
 using namespace std;
-char ch, buffer[15], operatorBuffer[4], operators[] = "+-><*/%=()#^~|&?!,:;.[]{}";
+char ch, buffer[15], operatorBuffer[4], operators[] = "+-><*/%=()#^~|&?!,:;.[]{}", terminalOperators[] = "})]";
 int i, j=0, k=0;
 string filename;
+ofstream outputfile;
 
 int isKeyword(char buffer[]){
     char keywords[32][10] = {"auto","break","case","char","const","continue","default",
@@ -26,10 +27,22 @@ int isKeyword(char buffer[]){
     return flag;
 }
 
+bool isTerminalOperator(char ch){
+  bool isTerminal = false;
+  for(i = 0; i < sizeof(operators); ++i){
+    if(ch == terminalOperators[i]){
+      isTerminal = true;
+      break;
+    }
+  }
+  return isTerminal;
+}
+
 void outputOperatorToken(){
+  string str = "";
   if (k != 0){
     operatorBuffer[k] = '\0';
-    cout << operatorBuffer << '\n';
+    outputfile << operatorBuffer << '\n';
     k = 0;
   }
 }
@@ -38,7 +51,7 @@ void outputIdentifierToken(){
   if(j != 0){
     // to make it a string add null at the end
     buffer[j] = '\0';
-    cout << buffer << '\n';
+    outputfile << buffer << '\n';
     j = 0;
   }
 }
@@ -47,7 +60,12 @@ int main(){
     bool bConstString = false;
     string strConst;
 
-    ifstream fin("program.txt");
+    outputfile.open("output.txt");
+
+    cout << "Please enter filename: ";
+    cin >> filename;
+
+    ifstream fin(filename);
     if(!fin.is_open()){
         cout<<"error while opening the file\n";
         exit(0);
@@ -61,7 +79,7 @@ int main(){
           outputIdentifierToken();
           bConstString = !bConstString;
           if (bConstString == false && strConst.length() != 0){
-            cout << "\"" << strConst << "\"" << "\n";
+            outputfile << "\"" << strConst << "\"" << "\n";
             strConst = "";
           }
           continue;
@@ -69,7 +87,6 @@ int main(){
 
         if (bConstString == true){
           strConst += ch;
-          //cout << "strConst now: " << strConst << "\n";
           continue;
         }
 
@@ -77,8 +94,15 @@ int main(){
         for(i = 0; i < sizeof(operators); ++i){
             if(ch == operators[i]){
               outputIdentifierToken();
-              operatorBuffer[k] = ch;
-              k++;
+              if(isTerminalOperator(ch)){
+                outputOperatorToken();
+                outputfile << ch << "\n";
+              }
+              else{
+                operatorBuffer[k] = ch;
+                k++;
+              }
+              break;
             }
         }
 
@@ -91,13 +115,14 @@ int main(){
             j = 0;
 
             if(isKeyword(buffer) == 1)
-                cout << buffer << '\n';
+                outputfile << buffer << '\n';
             else
-                cout << buffer << '\n';
+                outputfile << buffer << '\n';
 
         }
 
     }
     fin.close();
+    outputfile.close();
     return 0;
 }
