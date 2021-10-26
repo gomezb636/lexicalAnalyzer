@@ -1,0 +1,8 @@
+if                       (keyword)
+(                       (operator)
+x                    (identifier) 
+>                       (operator)
+50                      (constant)
+)                       (operator)
+x                     (identifier)
+=                       (operator)
