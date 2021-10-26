@@ -43,7 +43,7 @@ void outputOperatorToken(){
   string str = "";
   if (k != 0){
     operatorBuffer[k] = '\0';
-    outputfile << operatorBuffer << " (operator)\n";
+    outputfile << left << setw(10) << operatorBuffer << right << setw(25) << " (operator)\n";
     k = 0;
   }
 }
@@ -52,14 +52,14 @@ void outputIdentifierToken(){
   if(j != 0){
     // to make it a string add null at the end
     buffer[j] = '\0';
-    outputfile << buffer << " (identifier)\n";
+    outputfile << left << setw(10) << buffer << right << setw(25) << " (identifier)\n";
     j = 0;
   }
 }
 
 void outputConstToken(){
   if(constBuffer != ""){
-    outputfile << constBuffer << " (constant)\n";
+    outputfile << left << setw(10) << constBuffer << right << setw(25) << " (constant)\n";
     constBuffer = "";
   }
 }
@@ -87,7 +87,7 @@ int main(){
           outputIdentifierToken();
           bConstString = !bConstString;
           if (bConstString == false && strConst.length() != 0){
-            outputfile << "\"" << strConst << "\"" << " (string literal)\n";
+            outputfile << "\"" << strConst << left << setw(15) << "\"" << left << " (string literal)\n";
             strConst = "";
           }
           continue;
@@ -105,7 +105,7 @@ int main(){
               outputConstToken();
               if(isTerminalOperator(ch)){
                 outputOperatorToken();
-                outputfile << ch << " (operator)\n";
+                outputfile << left << setw(10) << ch << right << setw(25) << " (operator)\n";
               }
               else{
                 operatorBuffer[k] = ch;
@@ -135,9 +135,9 @@ int main(){
             j = 0;
 
             if(isKeyword(buffer) == 1)
-                outputfile << buffer << " (keyword)\n";
+                outputfile << left << setw(10) << buffer << right << setw(25) << " (keyword)\n";
             else
-                outputfile << buffer << " (identifier) \n";
+                outputfile << left << setw(10) << buffer << right << setw(25) << " (identifier) \n";
 
         }
 
