@@ -6,19 +6,20 @@
 
 using namespace std;
 char ch, buffer[15], operatorBuffer[4], operators[] = "+-><*/%=()#^~|&?!,:;.[]{}", terminalOperators[] = "})]";
+string constBuffer = "";
 int i, j=0, k=0;
 string filename;
 ofstream outputfile;
 
 int isKeyword(char buffer[]){
-    char keywords[32][10] = {"auto","break","case","char","const","continue","default",
+    char keywords[33][10] = {"auto","break","case","char","const","continue","default",
                             "do","double","else","enum","extern","float","for","goto",
                             "if","int","long","register","return","short","signed",
                             "sizeof","static","struct","switch","typedef","union",
-                            "unsigned","void","volatile","while"};
+                            "unsigned","void","volatile","while", "std"};
 
     int i, flag = 0;
-    for(i = 0; i < 32; ++i){
+    for(i = 0; i < 33; ++i){
         if(strcmp(keywords[i], buffer) == 0){
             flag = 1;
             break;
@@ -42,7 +43,7 @@ void outputOperatorToken(){
   string str = "";
   if (k != 0){
     operatorBuffer[k] = '\0';
-    outputfile << operatorBuffer << '\n';
+    outputfile << operatorBuffer << " (operator)\n";
     k = 0;
   }
 }
@@ -51,8 +52,15 @@ void outputIdentifierToken(){
   if(j != 0){
     // to make it a string add null at the end
     buffer[j] = '\0';
-    outputfile << buffer << '\n';
+    outputfile << buffer << " (identifier)\n";
     j = 0;
+  }
+}
+
+void outputConstToken(){
+  if(constBuffer != ""){
+    outputfile << constBuffer << " (constant)\n";
+    constBuffer = "";
   }
 }
 
@@ -79,7 +87,7 @@ int main(){
           outputIdentifierToken();
           bConstString = !bConstString;
           if (bConstString == false && strConst.length() != 0){
-            outputfile << "\"" << strConst << "\"" << "\n";
+            outputfile << "\"" << strConst << "\"" << " (string literal)\n";
             strConst = "";
           }
           continue;
@@ -94,9 +102,10 @@ int main(){
         for(i = 0; i < sizeof(operators); ++i){
             if(ch == operators[i]){
               outputIdentifierToken();
+              outputConstToken();
               if(isTerminalOperator(ch)){
                 outputOperatorToken();
-                outputfile << ch << "\n";
+                outputfile << ch << " (operator)\n";
               }
               else{
                 operatorBuffer[k] = ch;
@@ -106,8 +115,19 @@ int main(){
             }
         }
 
-        if(isalnum(ch)){
+        if(isalpha(ch)){
             buffer[j++] = ch;
+            outputOperatorToken();
+        }
+
+        if(isdigit(ch)){
+            // it's not beginning with a number
+            if (j != 0){
+              buffer[j++] = ch;
+            }
+            else{
+              constBuffer += ch;
+            }
             outputOperatorToken();
         }
         else if((ch == ' ' || ch == '\n') && (j != 0)){
@@ -115,9 +135,9 @@ int main(){
             j = 0;
 
             if(isKeyword(buffer) == 1)
-                outputfile << buffer << '\n';
+                outputfile << buffer << " (keyword)\n";
             else
-                outputfile << buffer << '\n';
+                outputfile << buffer << " (identifier) \n";
 
         }
 
